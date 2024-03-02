@@ -1,5 +1,0 @@
-".\Objects\main.obj",
-".\Objects\NixieTube_Display.obj",
-".\Objects\Delay.obj" 
-TO ".\Objects\project" 
-PRINT(".\Listings\project.m51") RAMSIZE(256) 
