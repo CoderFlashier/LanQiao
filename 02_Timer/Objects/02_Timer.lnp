@@ -1,0 +1,6 @@
+".\Objects\main.obj",
+".\Objects\init.obj",
+".\Objects\timer.obj",
+".\Objects\led.obj" 
+TO ".\Objects\02_Timer" 
+PRINT(".\Listings\02_Timer.m51") RAMSIZE(256) 

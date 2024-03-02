@@ -1,0 +1,151 @@
+BL51 BANKED LINKER/LOCATER V6.22.4.0                                                    03/02/2024  16:18:24  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22.4.0, INVOKED BY:
+F:\KEIL5\C51\BIN\BL51.EXE .\Objects\main.obj, .\Objects\led.obj, .\Objects\init.obj TO .\Objects\01_LED PRINT (.\Listing
+>> s\01_LED.m51) RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  .\Objects\main.obj (MAIN)
+  .\Objects\led.obj (LED)
+  .\Objects\init.obj (INIT)
+  F:\KEIL5\C51\LIB\C51S.LIB (?C_STARTUP)
+
+
+LINK MAP OF MODULE:  .\Objects\01_LED (MAIN)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            IDATA   0008H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     001DH     UNIT         ?PR?CLS_PERIPHERAL?INIT
+            CODE    0020H     0010H     UNIT         ?PR?_LED_DISPLAY?LED
+            CODE    0030H     000CH     UNIT         ?C_C51STARTUP
+            CODE    003CH     000AH     UNIT         ?PR?MAIN?MAIN
+
+
+
+OVERLAY MAP OF MODULE:   .\Objects\01_LED (MAIN)
+
+
+SEGMENT
+  +--> CALLED SEGMENT
+---------------------
+?C_C51STARTUP
+  +--> ?PR?MAIN?MAIN
+
+?PR?MAIN?MAIN
+  +--> ?PR?CLS_PERIPHERAL?INIT
+  +--> ?PR?_LED_DISPLAY?LED
+
+
+
+SYMBOL TABLE OF MODULE:  .\Objects\01_LED (MAIN)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        MAIN
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  D:0090H         PUBLIC        P1
+BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  03/02/2024  16:18:24  PAGE 2
+
+
+  D:00A0H         PUBLIC        P2
+  D:00B0H         PUBLIC        P3
+  D:00C0H         PUBLIC        P4
+  D:00C8H         PUBLIC        P5
+  D:00E8H         PUBLIC        P6
+  D:00F8H         PUBLIC        P7
+  D:00A8H         PUBLIC        IE
+  D:00B8H         PUBLIC        IP
+  D:00D8H         PUBLIC        CCON
+  C:003CH         PUBLIC        main
+  D:0098H         PUBLIC        SCON
+  D:0088H         PUBLIC        TCON
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          MAIN
+  C:003CH         LINE#         4
+  C:003CH         LINE#         5
+  C:003CH         LINE#         6
+  C:003FH         LINE#         7
+  C:0044H         LINE#         8
+  C:0044H         LINE#         9
+  C:0044H         LINE#         11
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        MAIN
+
+  -------         MODULE        LED
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  D:00B0H         PUBLIC        P3
+  D:00C0H         PUBLIC        P4
+  D:00C8H         PUBLIC        P5
+  D:00E8H         PUBLIC        P6
+  D:00F8H         PUBLIC        P7
+  D:00A8H         PUBLIC        IE
+  C:0020H         PUBLIC        _LED_Display
+  D:00B8H         PUBLIC        IP
+  D:00D8H         PUBLIC        CCON
+  D:0098H         PUBLIC        SCON
+  D:0088H         PUBLIC        TCON
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          _LED_DISPLAY
+  D:0007H         SYMBOL        ucLED
+  C:0020H         LINE#         4
+  C:0020H         LINE#         5
+  C:0020H         LINE#         6
+  C:0024H         LINE#         8
+  C:002CH         LINE#         12
+  C:002FH         LINE#         13
+  -------         ENDPROC       _LED_DISPLAY
+  -------         ENDMOD        LED
+
+  -------         MODULE        INIT
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+BL51 BANKED LINKER/LOCATER V6.22.4.0                                                  03/02/2024  16:18:24  PAGE 3
+
+
+  D:00B0H         PUBLIC        P3
+  D:00C0H         PUBLIC        P4
+  D:00C8H         PUBLIC        P5
+  D:00E8H         PUBLIC        P6
+  D:00F8H         PUBLIC        P7
+  D:00A8H         PUBLIC        IE
+  C:0003H         PUBLIC        Cls_Peripheral
+  D:00B8H         PUBLIC        IP
+  D:00D8H         PUBLIC        CCON
+  D:0098H         PUBLIC        SCON
+  D:0088H         PUBLIC        TCON
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          CLS_PERIPHERAL
+  C:0003H         LINE#         4
+  C:0003H         LINE#         5
+  C:0003H         LINE#         7
+  C:0006H         LINE#         8
+  C:000EH         LINE#         9
+  C:0011H         LINE#         12
+  C:0014H         LINE#         13
+  C:001CH         LINE#         14
+  C:001FH         LINE#         15
+  -------         ENDPROC       CLS_PERIPHERAL
+  -------         ENDMOD        INIT
+
+Program Size: data=9.0 xdata=0 code=70
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)
