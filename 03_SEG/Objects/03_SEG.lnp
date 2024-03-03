@@ -1,0 +1,7 @@
+".\Objects\main.obj",
+".\Objects\timer.obj",
+".\Objects\seg.obj",
+".\Objects\led.obj",
+".\Objects\init.obj" 
+TO ".\Objects\03_SEG" 
+PRINT(".\Listings\03_SEG.m51") RAMSIZE(256) 
