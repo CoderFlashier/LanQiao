@@ -1,0 +1,7 @@
+".\Objects\init.obj",
+".\Objects\seg.obj",
+".\Objects\main.obj",
+".\Objects\key.obj",
+".\Objects\timer.obj" 
+TO ".\Objects\04_BTN" 
+PRINT(".\Listings\04_BTN.m51") RAMSIZE(256) 

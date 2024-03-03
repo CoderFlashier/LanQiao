@@ -1,0 +1,138 @@
+C51 COMPILER V9.60.7.0   KEY                                                               03/03/2024 22:50:41 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE KEY
+OBJECT MODULE PLACED IN .\Objects\key.obj
+COMPILER INVOKED BY: F:\keil5\C51\BIN\C51.EXE ..\Driver\key.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\Driver) DEBUG OBJECTEXT
+                    -END PRINT(.\Listings\key.lst) TABS(2) OBJECT(.\Objects\key.obj)
+
+line level    source
+
+   1          #include "key.h"
+   2          
+   3          
+   4          unsigned char Key_Read_BTN(void)
+   5          {
+   6   1        if(P33 == 0)
+   7   1          return 4;
+   8   1        else if(P32 == 0)
+   9   1          return 5;
+  10   1        else if(P31 == 0)
+  11   1          return 6;
+  12   1        else if(P30 == 0)
+  13   1          return 7;
+  14   1        else
+  15   1          return 0;
+  16   1        
+  17   1      }
+  18          
+  19          
+  20          unsigned char Key_Read_KBD(void)
+  21          {
+  22   1        unsigned int Key_New = 0;
+  23   1        unsigned char Key_Val = 0;
+  24   1        P44 = 0;
+  25   1        P42 = 1;
+  26   1        P35 = 1;
+  27   1        P34 = 1;
+  28   1        // xxxx xxxx xxxx S4 S5 S6 S7
+  29   1        Key_New = (P3 & 0x0f);
+  30   1        
+  31   1        P44 = 1;
+  32   1        P42 = 0;
+  33   1        P35 = 1;
+  34   1        P34 = 1;
+  35   1        // xxxx xxxx S4 S5 S6 S7 S8 S9 S10 S11
+  36   1        Key_New = (Key_New << 4) | (P3 & 0x0f);
+  37   1        
+  38   1        P44 = 1;
+  39   1        P42 = 1;
+  40   1        P35 = 0;
+  41   1        P34 = 1;
+  42   1        // xxxx S4 S5 S6 S7 S8 S9 S10 S11 S12 S13 S14 S15
+  43   1        Key_New = (Key_New << 4) | (P3 & 0x0f);
+  44   1        
+  45   1        P44 = 1;
+  46   1        P42 = 1;
+  47   1        P35 = 1;
+  48   1        P34 = 0;
+  49   1        // S4 S5 S6 S7 S8 S9 S10 S11 S12 S13 S14 S15 S16 S17 S18 S19
+  50   1        Key_New = (Key_New << 4) | (P3 & 0x0f);
+  51   1        
+  52   1        switch(~Key_New)
+  53   1        {
+  54   2          case 0x8000:
+C51 COMPILER V9.60.7.0   KEY                                                               03/03/2024 22:50:41 PAGE 2   
+
+  55   2            Key_Val = 4;
+  56   2            break;
+  57   2          case 0x4000:
+  58   2            Key_Val = 5;
+  59   2            break;
+  60   2          case 0x2000:
+  61   2            Key_Val = 6;
+  62   2            break;
+  63   2          case 0x1000:
+  64   2            Key_Val = 7;
+  65   2            break;
+  66   2          
+  67   2          case 0x0800:
+  68   2            Key_Val = 8;
+  69   2            break;
+  70   2          case 0x0400:
+  71   2            Key_Val = 9;
+  72   2            break;
+  73   2          case 0x0200:
+  74   2            Key_Val = 10;
+  75   2            break;
+  76   2          case 0x0100:
+  77   2            Key_Val = 11;
+  78   2            break;
+  79   2          
+  80   2          case 0x0080:
+  81   2            Key_Val = 12;
+  82   2            break;
+  83   2          case 0x0040:
+  84   2            Key_Val = 13;
+  85   2            break;
+  86   2          case 0x0020:
+  87   2            Key_Val = 14;
+  88   2            break;
+  89   2          case 0x0010:
+  90   2            Key_Val = 15;
+  91   2            break;
+  92   2          
+  93   2          case 0x0008:
+  94   2            Key_Val = 16;
+  95   2            break;
+  96   2          case 0x0004:
+  97   2            Key_Val = 17;
+  98   2            break;
+  99   2          case 0x0002:
+ 100   2            Key_Val = 18;
+ 101   2            break;
+ 102   2          case 0x0001:
+ 103   2            Key_Val = 19;
+ 104   2            break;
+ 105   2          default:
+ 106   2            Key_Val = 0;
+ 107   2            break;
+ 108   2        }
+ 109   1        return Key_Val;
+ 110   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    292    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+C51 COMPILER V9.60.7.0   KEY                                                               03/03/2024 22:50:41 PAGE 3   
+
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       1
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

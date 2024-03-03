@@ -1,0 +1,7 @@
+".\Objects\key.obj",
+".\Objects\timer.obj",
+".\Objects\seg.obj",
+".\Objects\main.obj",
+".\Objects\init.obj" 
+TO ".\Objects\05_KBD" 
+PRINT(".\Listings\05_KBD.m51") RAMSIZE(256) 
