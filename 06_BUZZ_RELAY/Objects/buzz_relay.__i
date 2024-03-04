@@ -1,0 +1,1 @@
+"..\Driver\buzz_relay.c" OPTIMIZE (8,SPEED) BROWSE INCDIR(..\Driver) DEBUG OBJECTEXTEND PRINT(.\Listings\buzz_relay.lst) TABS (2) OBJECT(.\Objects\buzz_relay.obj)
