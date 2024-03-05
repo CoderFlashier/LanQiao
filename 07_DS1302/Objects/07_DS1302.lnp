@@ -1,0 +1,7 @@
+".\Objects\main.obj",
+".\Objects\init.obj",
+".\Objects\seg.obj",
+".\Objects\timer.obj",
+".\Objects\ds1302.obj" 
+TO ".\Objects\07_DS1302" 
+PRINT(".\Listings\07_DS1302.m51") RAMSIZE(256) 
