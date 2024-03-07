@@ -1,0 +1,85 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              03/07/2024 22:54:27 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: F:\keil5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\Driver) DEBUG OBJECTEXTEND PRINT
+                    -(.\Listings\main.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include "seg.h"
+   2          #include "timer.h"
+   3          #include "init.h"
+   4          #include "led.h"
+   5          #include "iic.h"
+   6          
+   7          //Seg
+   8          unsigned char pucSeg_Buf[10], pucSeg_Code[8], pucSeg_Pos;
+   9          
+  10          //Timer
+  11          unsigned int uiSeg_Dly;
+  12          unsigned long ulms = 0;
+  13          
+  14          //ACD
+  15          unsigned char ucADC = 0;
+  16          
+  17          void Seg_Proc(void);
+  18          
+  19          void main()
+  20          {
+  21   1        Cls_Peripheral();
+  22   1        Timer0_Init();
+  23   1        EA = 1;
+  24   1        
+  25   1        
+  26   1        PCF8591_DAC(153);
+  27   1        
+  28   1        while(1)
+  29   1        {
+  30   2          Seg_Proc();
+  31   2        }
+  32   1      }
+  33          
+  34          
+  35          void Seg_Proc(void)
+  36          {
+  37   1        if(uiSeg_Dly < 200)
+  38   1          return;
+  39   1        
+  40   1        uiSeg_Dly = 0;
+  41   1        
+  42   1        ucADC = PCF8591_ADC();
+  43   1        
+  44   1        sprintf(pucSeg_Buf, "%3d", (unsigned int)ucADC);//5v -- 255, 0v -- 0, 2v -- 102, 3v -- 153 3.5v -- 178
+  45   1        Seg_Tran(pucSeg_Buf, pucSeg_Code);
+  46   1      }
+  47          
+  48          
+  49          void Timer_0(void) interrupt 1
+  50          {
+  51   1        uiSeg_Dly++;
+  52   1        ulms++;
+  53   1        if(ulms % 2 == 0)
+  54   1        {
+C51 COMPILER V9.60.7.0   MAIN                                                              03/07/2024 22:54:27 PAGE 2   
+
+  55   2          pucSeg_Pos = (pucSeg_Pos + 1) % 8;
+  56   2          Seg_Display(pucSeg_Code, pucSeg_Pos);
+  57   2        }
+  58   1      }
+  59          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    200    ----
+   CONSTANT SIZE    =      4    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     26    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

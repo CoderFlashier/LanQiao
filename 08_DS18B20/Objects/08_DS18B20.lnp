@@ -1,0 +1,7 @@
+".\Objects\timer.obj",
+".\Objects\seg.obj",
+".\Objects\onewire.obj",
+".\Objects\init.obj",
+".\Objects\main.obj" 
+TO ".\Objects\08_DS18B20" 
+PRINT(".\Listings\08_DS18B20.m51") RAMSIZE(256) 

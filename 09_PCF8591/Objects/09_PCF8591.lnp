@@ -1,0 +1,7 @@
+".\Objects\main.obj",
+".\Objects\iic.obj",
+".\Objects\init.obj",
+".\Objects\seg.obj",
+".\Objects\timer.obj" 
+TO ".\Objects\09_PCF8591" 
+PRINT(".\Listings\09_PCF8591.m51") RAMSIZE(256) 

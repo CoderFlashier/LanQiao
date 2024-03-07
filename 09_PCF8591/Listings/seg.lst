@@ -1,0 +1,110 @@
+C51 COMPILER V9.60.7.0   SEG                                                               03/07/2024 21:16:55 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE SEG
+OBJECT MODULE PLACED IN .\Objects\seg.obj
+COMPILER INVOKED BY: F:\keil5\C51\BIN\C51.EXE ..\Driver\seg.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\Driver) DEBUG OBJECTEXT
+                    -END PRINT(.\Listings\seg.lst) TABS(2) OBJECT(.\Objects\seg.obj)
+
+line level    source
+
+   1          #include "seg.h"
+   2          
+   3          
+   4          void Seg_Tran(unsigned char *pucSeg_Buf, unsigned char *pucSeg_Code)
+   5          {
+   6   1        unsigned char i ,j;
+   7   1        for(i = 0, j = 0; i <= 7; i++, j++)
+   8   1        {
+   9   2          switch(pucSeg_Buf[j])
+  10   2          {
+  11   3            case '0':
+  12   3              pucSeg_Code[i] = 0xc0;
+  13   3              break;
+  14   3            case '1':
+  15   3              pucSeg_Code[i] = 0xf9;
+  16   3              break;
+  17   3            case '2':
+  18   3              pucSeg_Code[i] = 0xa4;
+  19   3              break;
+  20   3            case '3':
+  21   3              pucSeg_Code[i] = 0xb0;
+  22   3              break;
+  23   3            case '4':
+  24   3              pucSeg_Code[i] = 0x99;
+  25   3              break;
+  26   3            case '5':
+  27   3              pucSeg_Code[i] = 0x92;
+  28   3              break;
+  29   3            case '6':
+  30   3              pucSeg_Code[i] = 0x82;
+  31   3              break;
+  32   3            case '7':
+  33   3              pucSeg_Code[i] = 0xf8;
+  34   3              break;
+  35   3            case '8':
+  36   3              pucSeg_Code[i] = 0x80;
+  37   3              break;
+  38   3            case '9':
+  39   3              pucSeg_Code[i] = 0x90;
+  40   3              break;
+  41   3            case 'A':
+  42   3              pucSeg_Code[i] = 0x88;
+  43   3              break;
+  44   3            case 'b':
+  45   3              pucSeg_Code[i] = 0x83;
+  46   3              break;
+  47   3            case 'C':
+  48   3              pucSeg_Code[i] = 0xc6;
+  49   3              break;
+  50   3            case 'd':
+  51   3              pucSeg_Code[i] = 0xa1;
+  52   3              break;
+  53   3            case 'E':
+  54   3              pucSeg_Code[i] = 0x86;
+C51 COMPILER V9.60.7.0   SEG                                                               03/07/2024 21:16:55 PAGE 2   
+
+  55   3              break;
+  56   3            case 'F':
+  57   3              pucSeg_Code[i] = 0x81;
+  58   3              break;
+  59   3            case ' ':
+  60   3              pucSeg_Code[i] = 0xff;
+  61   3              break;
+  62   3            case '\0':
+  63   3              pucSeg_Code[i] = 0xff;
+  64   3              break;
+  65   3          }
+  66   2          if(pucSeg_Buf[j + 1] == '.')
+  67   2          {
+  68   3            pucSeg_Code[i] &= 0x7f;
+  69   3            j++;
+  70   3          }
+  71   2        }
+  72   1      }
+  73          
+  74          
+  75          void Seg_Display(unsigned char *pucSeg_Code, unsigned char ucSeg_Pos)
+  76          {
+  77   1        P0 = pucSeg_Code[ucSeg_Pos];
+  78   1        P2 = P2 & 0x1f | 0xe0; // 1110 0000
+  79   1        P2 = P2 & 0x1f;
+  80   1        
+  81   1        P0 = 1 << ucSeg_Pos;
+  82   1        P2 = P2 & 0x1f | 0xc0;
+  83   1        P2 = P2 & 0x1f;
+  84   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    474    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       8
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
