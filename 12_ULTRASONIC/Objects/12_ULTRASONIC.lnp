@@ -1,0 +1,7 @@
+".\Objects\main.obj",
+".\Objects\init.obj",
+".\Objects\seg.obj",
+".\Objects\timer.obj",
+".\Objects\ultrasonic.obj" 
+TO ".\Objects\12_ULTRASONIC" 
+PRINT(".\Listings\12_ULTRASONIC.m51") RAMSIZE(256) 

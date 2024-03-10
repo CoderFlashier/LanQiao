@@ -1,0 +1,60 @@
+C51 COMPILER V9.60.7.0   TIMER                                                             03/10/2024 12:46:12 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE TIMER
+OBJECT MODULE PLACED IN .\Objects\timer.obj
+COMPILER INVOKED BY: F:\keil5\C51\BIN\C51.EXE ..\Driver\timer.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\Driver) DEBUG OBJECTE
+                    -XTEND PRINT(.\Listings\timer.lst) TABS(2) OBJECT(.\Objects\timer.obj)
+
+line level    source
+
+   1          #include "timer.h"
+   2          
+   3          /*
+   4          void Timer0_Init(void)    //1毫秒@12.000MHz
+   5          {
+   6            AUXR |= 0x80;     //定时器时钟1T模式
+   7            TMOD &= 0xF0;     //设置定时器模式
+   8            TL0 = 0x20;       //设置定时初始值
+   9            TH0 = 0xD1;       //设置定时初始值
+  10            TF0 = 0;        //清除TF0标志
+  11            TR0 = 1;        //定时器0开始计时
+  12            ET0 = 1;   //打开中断开关
+  13          }
+  14          */
+  15          
+  16          void Timer1_Init(void)    //1毫秒@12.000MHz
+  17          {
+  18   1        AUXR |= 0x40;     //定时器时钟1T模式
+  19   1        TMOD &= 0x0F;     //设置定时器模式
+  20   1        TL1 = 0x20;       //设置定时初始值
+  21   1        TH1 = 0xD1;       //设置定时初始值
+  22   1        TF1 = 0;        //清除TF1标志
+  23   1        TR1 = 1;        //定时器1开始计时
+  24   1        ET1 = 1;
+  25   1      }
+  26          
+  27          
+  28          void Timer0_Init(void)    //12微秒@12.000MHz
+  29          {
+  30   1        AUXR &= 0x7F;     //定时器时钟12T模式
+  31   1        TMOD &= 0xF0;     //设置定时器模式
+  32   1        TL0 = 0xF4;       //设置定时初始值
+  33   1        TH0 = 0xFF;       //设置定时初始值
+  34   1        TF0 = 0;        //清除TF0标志
+  35   1        TR0 = 0;        //定时器0开始不计时
+  36   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     36    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,10 @@
+".\Objects\main.obj",
+".\Objects\iic.obj",
+".\Objects\init.obj",
+".\Objects\led.obj",
+".\Objects\key.obj",
+".\Objects\seg.obj",
+".\Objects\timer.obj",
+".\Objects\ultrasonic.obj" 
+TO ".\Objects\sim_com1" 
+PRINT(".\Listings\sim_com1.m51") RAMSIZE(256) 

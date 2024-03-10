@@ -1,0 +1,7 @@
+".\Objects\main.obj",
+".\Objects\iic.obj",
+".\Objects\init.obj",
+".\Objects\seg.obj",
+".\Objects\timer.obj" 
+TO ".\Objects\10_AT24C02" 
+PRINT(".\Listings\10_AT24C02.m51") RAMSIZE(256) 
