@@ -1,0 +1,6 @@
+".\Objects\timer.obj",
+".\Objects\seg.obj",
+".\Objects\init.obj",
+".\Objects\main.obj" 
+TO ".\Objects\11_NE555" 
+PRINT(".\Listings\11_NE555.m51") RAMSIZE(256) 
