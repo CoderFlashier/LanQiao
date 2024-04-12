@@ -1,0 +1,144 @@
+C51 COMPILER V9.60.7.0   KEYBOARD                                                          03/06/2024 16:36:22 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE KEYBOARD
+OBJECT MODULE PLACED IN .\Objects\keyboard.obj
+COMPILER INVOKED BY: D:\Keil\C51\BIN\C51.EXE User\keyboard.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listing
+                    -s\keyboard.lst) OBJECT(.\Objects\keyboard.obj)
+
+line level    source
+
+   1          #include "keyboard.h"
+   2          
+   3          KEYStruct key;
+   4          
+   5          KEYStruct* GetKeyStruct(void)
+   6          {
+   7   1          return &key;
+   8   1      }
+   9          
+  10          //
+  11          static unsigned char ReadKeyPort(void)
+  12          {
+  13   1              unsigned char port = 0;
+  14   1      
+  15   1              port = (P3 & 0x3F);
+  16   1      
+  17   1              (P42)?(port |= 0x40):(port &= 0xBF);
+  18   1              (P44)?(port |= 0x80):(port &= 0x7F);
+  19   1      
+  20   1              return port;
+  21   1      }
+  22          
+  23          //
+  24          static void ClsC(void)
+  25          {
+  26   1              P3 = 0x0F;
+  27   1              P42 = 0;
+  28   1              P44 = 0;
+  29   1      }
+  30          
+  31          //
+  32          static void ClsR(void)
+  33          {
+  34   1              P3 = 0xF0;
+  35   1              P42 = 1;
+  36   1              P44 = 1;                
+  37   1      }
+  38          
+  39          //
+  40          void ScanKeyboard(void)
+  41          {
+  42   1              static unsigned char col = 0;   
+  43   1          switch(key.status)
+  44   1          {
+  45   2              case 0: 
+  46   2                              ClsR();
+  47   2                              if(ReadKeyPort() != 0xF0){
+  48   3                                      key.status = 1;
+  49   3                              }
+  50   2                  break;
+  51   2              case 1:
+  52   2                              ClsR();
+  53   2                              switch(ReadKeyPort()){
+  54   3                                      case 0xE0:
+C51 COMPILER V9.60.7.0   KEYBOARD                                                          03/06/2024 16:36:22 PAGE 2   
+
+  55   3                                              col = 4;
+  56   3                                              key.status = 2;
+  57   3                                              break;
+  58   3                                      case 0xD0:
+  59   3                                              col = 3;
+  60   3                                              key.status = 2;
+  61   3                                              break;
+  62   3                                      case 0xB0:
+  63   3                                              col = 2;
+  64   3                                              key.status = 2;
+  65   3                                              break;
+  66   3                                      case 0x70:
+  67   3                                              col = 1;
+  68   3                                              key.status = 2;
+  69   3                                              break;
+  70   3                                      default:
+  71   3                                              key.status = 0; //抖动
+  72   3                                              break;
+  73   3                              }
+  74   2                              break;
+  75   2              case 2:
+  76   2                              ClsC();
+  77   2                              switch(ReadKeyPort()){
+  78   3                                      case 0x0E:
+  79   3                                              key.value = col - 1;
+  80   3                                              key.status = 3;
+  81   3                                              break;
+  82   3                                      case 0x0D:
+  83   3                                              key.value = col + 3;
+  84   3                                              key.status = 3;
+  85   3                                              break;
+  86   3                                      case 0x0B:
+  87   3                                              key.value = col + 7;
+  88   3                                              key.status = 3;
+  89   3                                              break;
+  90   3                                      case 0x07:
+  91   3                                              key.value = col + 11;
+  92   3                                              key.status = 3;
+  93   3                                              break;
+  94   3                                      default:
+  95   3                                              key.status = 0; //抖动
+  96   3                                              break;
+  97   3                              }
+  98   2      
+  99   2                              if(key.value > 15) key.value = 255;
+ 100   2                  break; 
+ 101   2                      case 3:
+ 102   2                              ClsC();
+ 103   2                              if(ReadKeyPort() == 0x0F){
+ 104   3                                      key.status = 0;
+ 105   3                              }
+ 106   2                              break; 
+ 107   2          }
+ 108   1      }
+ 109          
+ 110          void InitKeyStruct(void)
+ 111          {
+ 112   1          key.pFun = ScanKeyboard;
+ 113   1          key.value = 0xFF;
+ 114   1          key.status = 0;
+ 115   1      }
+ 116          
+C51 COMPILER V9.60.7.0   KEYBOARD                                                          03/06/2024 16:36:22 PAGE 3   
+
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    224    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      5    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

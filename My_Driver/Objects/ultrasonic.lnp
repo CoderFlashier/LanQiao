@@ -1,0 +1,11 @@
+".\Objects\init.obj",
+".\Objects\main.obj",
+".\Objects\seg.obj",
+".\Objects\timer.obj",
+".\Objects\key.obj",
+".\Objects\ultrasonic.obj",
+".\Objects\ds1302.obj",
+".\Objects\iic.obj",
+".\Objects\onewire.obj" 
+TO ".\Objects\ultrasonic" 
+PRINT(".\Listings\ultrasonic.m51") RAMSIZE(256) 

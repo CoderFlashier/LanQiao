@@ -6,6 +6,8 @@
 ".\Objects\key.obj",
 ".\Objects\buzz_relay.obj",
 ".\Objects\ds1302.obj",
-".\Objects\iic.obj" 
+".\Objects\iic.obj",
+".\Objects\onewire.obj",
+".\Objects\ultrasonic.obj" 
 TO ".\Objects\123456" 
 PRINT(".\Listings\123456.m51") RAMSIZE(256) 

@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   MAIN                                                              03/17/2024 14:12:29 PAGE 1   
+C51 COMPILER V9.60.7.0   MAIN                                                              03/27/2024 19:15:31 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
@@ -16,142 +16,195 @@ line level    source
    6          #include "key.h"
    7          #include "buzz_relay.h"
    8          #include "ds1302.h"
-   9          
-  10          //Timer
-  11          unsigned long ulms = 0;
-  12          unsigned int uiLED_Dly = 0;
-  13          unsigned int uiSeg_Dly = 0;
-  14          unsigned int uiKey_Dly = 0;
-  15          unsigned int uiPeripheral_Dly = 0;
-  16          unsigned int uiRTC_Dly = 0;
-  17          
-  18          //LED
-  19          unsigned char ucLED = 0x25;
-  20          
-  21          //Seg
-  22          unsigned char ucSeg_Pos = 0;
-  23          unsigned char pucSeg_Buf[12], pucSeg_Code[8];
-  24          
-  25          //Key
-  26          unsigned char ucKey_Val = 0;
-  27          
-  28          //RTC
-  29          unsigned char pucRTC[3] = {23, 59, 55};
+   9          #include "iic.h"
+  10          #include "ultrasonic.h"
+  11          
+  12          
+  13          
+  14          //Timer
+  15          unsigned long ulms = 0;
+  16          unsigned int uiLED_Dly = 0;
+  17          unsigned int uiSeg_Dly = 0;
+  18          unsigned int uiKey_Dly = 0;
+  19          unsigned int uiPeripheral_Dly = 0;
+  20          unsigned int uiRTC_Dly = 0;
+  21          unsigned int uiTemperature_Dly = 0;
+  22          unsigned int uiUltrasonic_Dly = 0;
+  23          
+  24          //LED
+  25          unsigned char ucLED = 0x25;
+  26          
+  27          //Seg
+  28          unsigned char ucSeg_Pos = 0;
+  29          unsigned char pucSeg_Buf[12], pucSeg_Code[8];
   30          
-  31          //Function
-  32          void LED_Proc(void);
-  33          void Seg_Proc(void);
-  34          void Key_Proc(void);
-  35          void Peripheral_Proc(void);
-  36          void RTC_Proc(void);
-  37          
-  38          
-  39          void main(void)
-  40          {
-  41   1        init();
-  42   1        Timer0_Init();
-  43   1        EA = 1;
-  44   1        
-  45   1        Set_RTC(pucRTC);
-  46   1        
-  47   1        while(1)
-  48   1        {
-  49   2          LED_Proc();
-  50   2          Seg_Proc();
-  51   2          Key_Proc();
-  52   2          RTC_Proc();
-  53   2          
-  54   2          Peripheral_Proc();
-C51 COMPILER V9.60.7.0   MAIN                                                              03/17/2024 14:12:29 PAGE 2   
+  31          //Key
+  32          unsigned char ucKey_Val = 0;
+  33          
+  34          //RTC
+  35          unsigned char pucRTC[3] = {23, 59, 55};
+  36          
+  37          //Temperature
+  38          float Temperature_Val = 0;
+  39          
+  40          //NE555
+  41          unsigned int uiFreq = 0;
+  42          
+  43          //Ultrasonic
+  44          unsigned char ucDist = 0;
+  45          
+  46          //Function
+  47          void LED_Proc(void);
+  48          void Seg_Proc(void);
+  49          void Key_Proc(void);
+  50          void Peripheral_Proc(void);
+  51          void RTC_Proc(void);
+  52          void Temperature_Proc(void);
+  53          void Ultrasonic_Proc(void);
+  54          
+C51 COMPILER V9.60.7.0   MAIN                                                              03/27/2024 19:15:31 PAGE 2   
 
-  55   2        }
-  56   1      }
-  57          
-  58          
-  59          void LED_Proc(void)
-  60          {
-  61   1        if(uiLED_Dly < 200)
-  62   1          return;
-  63   1        
-  64   1        uiLED_Dly = 0;
-  65   1        
-  66   1        LED_Display(ucLED);
-  67   1      }
-  68          
-  69          void Seg_Proc(void)
-  70          {
-  71   1        if(uiSeg_Dly < 200)
-  72   1          return;
-  73   1        
-  74   1        uiSeg_Dly = 0;
-  75   1        
-  76   1        sprintf(pucSeg_Buf, "%02u-%02u-%02u", (unsigned int)pucRTC[0], (unsigned int)pucRTC[1], (unsigned int)puc
-             -RTC[2]);
-  77   1        Seg_Tran(pucSeg_Buf, pucSeg_Code);
-  78   1      }
-  79          
-  80          
-  81          void Key_Proc(void)
-  82          {
-  83   1        if(uiKey_Dly > 20)
-  84   1          return;
+  55          
+  56          void main(void)
+  57          {
+  58   1        init();
+  59   1        Timer0_Init();
+  60   1        Timer1_Init();
+  61   1        EA = 1;
+  62   1        
+  63   1        Set_RTC(pucRTC);
+  64   1        
+  65   1        while(1)
+  66   1        {
+  67   2          LED_Proc();
+  68   2          Seg_Proc();
+  69   2          Key_Proc();
+  70   2          RTC_Proc();
+  71   2          Temperature_Proc();
+  72   2          
+  73   2          Peripheral_Proc();
+  74   2          Ultrasonic_Proc();
+  75   2        }
+  76   1      }
+  77          
+  78          
+  79          void LED_Proc(void)
+  80          {
+  81   1        if(uiLED_Dly < 200)
+  82   1          return;
+  83   1        
+  84   1        uiLED_Dly = 0;
   85   1        
-  86   1        uiKey_Dly = 0;
-  87   1        
-  88   1        ucKey_Val = Key_Read_KBD();
-  89   1      }
-  90          
-  91          
-  92          void Peripheral_Proc(void)
-  93          {
-  94   1        if(uiPeripheral_Dly < 500)
-  95   1          return;
-  96   1        
-  97   1        uiPeripheral_Dly = 0;
-  98   1        
-  99   1        Set_Peripheral(0, 1);
- 100   1      }
- 101            
- 102          
- 103          void RTC_Proc(void)
- 104          {
- 105   1        if(uiRTC_Dly < 500)
- 106   1          return;
+  86   1        LED_Display(ucLED);
+  87   1      }
+  88          
+  89          void Seg_Proc(void)
+  90          {
+  91   1        if(uiSeg_Dly < 200)
+  92   1          return;
+  93   1        
+  94   1        uiSeg_Dly = 0;
+  95   1        
+  96   1        sprintf(pucSeg_Buf, "%03u", (unsigned int)ucDist);
+  97   1        Seg_Tran(pucSeg_Buf, pucSeg_Code);
+  98   1      }
+  99          
+ 100          
+ 101          void Key_Proc(void)
+ 102          {
+ 103   1        if(uiKey_Dly > 20)
+ 104   1          return;
+ 105   1        
+ 106   1        uiKey_Dly = 0;
  107   1        
- 108   1        uiRTC_Dly = 0;
- 109   1        
- 110   1        Get_RTC(pucRTC);
- 111   1      }
- 112            
- 113          
- 114          void Timer_0(void) interrupt 1
- 115          {
-C51 COMPILER V9.60.7.0   MAIN                                                              03/17/2024 14:12:29 PAGE 3   
+ 108   1        ucKey_Val = Key_Read_KBD();
+ 109   1      }
+ 110          
+ 111          
+ 112          void Peripheral_Proc(void)
+ 113          {
+ 114   1        if(uiPeripheral_Dly < 500)
+ 115   1          return;
+ 116   1        
+C51 COMPILER V9.60.7.0   MAIN                                                              03/27/2024 19:15:31 PAGE 3   
 
- 116   1        ulms++;
- 117   1        uiLED_Dly++;
- 118   1        uiSeg_Dly++;
- 119   1        uiKey_Dly++;
- 120   1        uiPeripheral_Dly++;
- 121   1        uiRTC_Dly++;
- 122   1        
- 123   1        if(ulms % 2 ==0)
- 124   1        {
- 125   2          ucSeg_Pos = (ucSeg_Pos + 1) % 8;
- 126   2          Seg_Display(pucSeg_Code, ucSeg_Pos);
- 127   2        }
- 128   1      }
+ 117   1        uiPeripheral_Dly = 0;
+ 118   1        
+ 119   1        Set_Peripheral(0, 1);
+ 120   1      }
+ 121            
+ 122          
+ 123          void RTC_Proc(void)
+ 124          {
+ 125   1        if(uiRTC_Dly < 500)
+ 126   1          return;
+ 127   1        
+ 128   1        uiRTC_Dly = 0;
+ 129   1        
+ 130   1        Get_RTC(pucRTC);
+ 131   1      }
+ 132            
+ 133          
+ 134          
+ 135          void Temperature_Proc(void)
+ 136          {
+ 137   1        if(uiTemperature_Dly < 500)
+ 138   1          return;
+ 139   1        
+ 140   1        uiTemperature_Dly = 0;
+ 141   1        
+ 142   1        Temperature_Val = rd_temperature() / 16.0;
+*** WARNING C206 IN LINE 142 OF main.c: 'rd_temperature': missing function-prototype
+ 143   1      }
+ 144          
+ 145          
+ 146          void Ultrasonic_Proc(void)
+ 147          {
+ 148   1        if(uiUltrasonic_Dly < 1000)
+ 149   1          return;
+ 150   1        
+ 151   1        uiUltrasonic_Dly = 0;
+ 152   1      
+ 153   1        ucDist = Wave_Recv();
+ 154   1      }
+ 155          
+ 156          void Timer_1(void) interrupt 3
+ 157          {
+ 158   1        ulms++;
+ 159   1        uiLED_Dly++;
+ 160   1        uiSeg_Dly++;
+ 161   1        uiKey_Dly++;
+ 162   1        uiPeripheral_Dly++;
+ 163   1        uiRTC_Dly++;
+ 164   1        uiTemperature_Dly++;
+ 165   1        uiUltrasonic_Dly++;
+ 166   1        
+ 167   1        if(ulms % 2 ==0)
+ 168   1        {
+ 169   2          ucSeg_Pos = (ucSeg_Pos + 1) % 8;
+ 170   2          Seg_Display(pucSeg_Code, ucSeg_Pos);
+ 171   2        }
+ 172   1        
+ 173   1      //  if(ulms % 1000 == 0)
+ 174   1      //  {
+ 175   1      //    uiFreq = ((TH0 << 8) | TL0);
+ 176   1      //    TL0 = 0;
+ 177   1      //    TH0 = 0;
+C51 COMPILER V9.60.7.0   MAIN                                                              03/27/2024 19:15:31 PAGE 4   
+
+ 178   1      //  }
+ 179   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    344    ----
-   CONSTANT SIZE    =     15    ----
+   CODE SIZE        =    427    ----
+   CONSTANT SIZE    =      5    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----
-   DATA SIZE        =     40    ----
+   DATA SIZE        =     51    ----
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----
 END OF MODULE INFORMATION.
 
 
-C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
+C51 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)

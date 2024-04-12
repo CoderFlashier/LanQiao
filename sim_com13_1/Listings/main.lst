@@ -1,0 +1,320 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              03/29/2024 13:52:05 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: F:\keil5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\Driver) DEBUG OBJECTEXTEND PRINT(
+                    -.\Listings\main.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include "timer.h"
+   2          #include "seg.h"
+   3          #include "key.h"
+   4          #include "stdio.h"
+   5          #include "init.h"
+   6          #include "onewire.h"
+   7          #include "ds1302.h"
+   8          #include "buzz_relay.h"
+   9          #include "led.h"
+  10          
+  11          //Key
+  12          unsigned char Key_Val = 0;
+  13          unsigned char Key_Val_Last = 0;
+  14          
+  15          //Seg
+  16          unsigned char Seg_Num[12] = {0};
+  17          unsigned char Seg_Val[12] = {0};
+  18          unsigned char Seg_Pos = 0;
+  19          
+  20          //Timer
+  21          unsigned char Seg_Dly = 0;
+  22          
+  23          //DS18B20
+  24          float Temperature_Val = 0;
+  25          unsigned int Temperature_Dly = 0;
+  26          float Temperature_Up = 23.0;
+  27          
+  28          //RCT
+  29          unsigned char Time_Val[3] = {12, 59, 50};
+  30          unsigned char RTC_Dly = 0;
+  31          
+  32          //Relay
+  33          unsigned int Relay_Dly = 0;
+  34          unsigned char Relay_Mode = 0;
+  35          unsigned char Relay_Mark = 0;
+  36          unsigned char Relay_Mode_1_Mark = 0;
+  37          unsigned char Relay_Is_Open = 0;
+  38          
+  39          //LED
+  40          unsigned char LED_Num = 0x02;
+  41          unsigned int LED_Dly = 0;
+  42          
+  43          //Mode
+  44          unsigned char Mode_Mark = 0;
+  45          unsigned int Mode_Val = 0;
+  46          void Mode_1(void);
+  47          void Mode_2(void);
+  48          void Mode_3(void);
+  49          
+  50          //Func
+  51          void Seg_Proc(void);
+  52          void Temperature_Read(void);
+  53          void RTC_Time_Read(void);
+  54          void Is_Realy(void);
+C51 COMPILER V9.60.7.0   MAIN                                                              03/29/2024 13:52:05 PAGE 2   
+
+  55          
+  56          
+  57          void main()
+  58          {
+  59   1        init();
+  60   1        Timer1_Init();
+  61   1        Set_RTC(Time_Val);
+  62   1        EA = 1;
+  63   1        
+  64   1        while(1)
+  65   1        {
+  66   2          Key_Val = Key_Read_KBD();
+  67   2          
+  68   2          if(Key_Val == 12 && Key_Val_Last == 0)      
+  69   2            Mode_Mark = (Mode_Mark + 1) % 3;
+  70   2          if(Key_Val == 13 && Key_Val_Last == 0)
+  71   2            Relay_Mode = (Relay_Mode + 1) % 2;
+  72   2          Key_Val_Last = Key_Val;
+  73   2              
+  74   2          switch (Mode_Mark)
+  75   2          {
+  76   3            case 0:
+  77   3              Mode_1();
+  78   3              break;
+  79   3            case 1:
+  80   3              Mode_2();
+  81   3              break;
+  82   3            case 2:
+  83   3              Mode_3();
+  84   3              break;
+  85   3          }
+  86   2          Seg_Proc();
+  87   2        }
+  88   1      }
+  89          
+  90          void Mode_1(void)
+  91          {
+  92   1        Temperature_Read();
+  93   1        sprintf(Seg_Num, "u1   %02.1f", (Temperature_Val / 16.0) + Temperature_Up);
+  94   1        Is_Realy();
+  95   1      }
+  96          
+  97          void Mode_2(void)
+  98          {
+  99   1        unsigned char Mode_2_Key_Val = 0;
+ 100   1        unsigned char Mode_2_Key_Val_Last = 1;
+ 101   1        
+ 102   1        while(1)
+ 103   1        {
+ 104   2          RTC_Time_Read();
+ 105   2          Mode_2_Key_Val = Key_Read_KBD();
+ 106   2          if(Mode_2_Key_Val == 0 && Mode_2_Key_Val_Last == 0)
+ 107   2            sprintf(Seg_Num, "u2 %02d-%02d", (unsigned int)Time_Val[0], (unsigned int)Time_Val[1]);
+ 108   2          if(Mode_2_Key_Val == 17 && Mode_2_Key_Val_Last == 17)
+ 109   2            sprintf(Seg_Num, "u2 %02d-%02d", (unsigned int)Time_Val[1], (unsigned int)Time_Val[2]);
+ 110   2          
+ 111   2          if(Mode_2_Key_Val == 12 && Mode_2_Key_Val_Last == 0)
+ 112   2            break;
+ 113   2          Seg_Proc();
+ 114   2          
+ 115   2          if(Mode_2_Key_Val == 13 && Mode_2_Key_Val_Last == 0)
+ 116   2            Relay_Mode = (Relay_Mode + 1) % 2;
+C51 COMPILER V9.60.7.0   MAIN                                                              03/29/2024 13:52:05 PAGE 3   
+
+ 117   2          
+ 118   2          Mode_2_Key_Val_Last = Mode_2_Key_Val;
+ 119   2          Is_Realy();
+ 120   2        }
+ 121   1        
+ 122   1        Mode_Mark = (Mode_Mark + 1) % 3;
+ 123   1      } 
+ 124          
+ 125          void Mode_3(void)
+ 126          {
+ 127   1        unsigned char Mode_3_Key_Val = 0;
+ 128   1        unsigned char Mode_3_Key_Val_Last = 12;
+ 129   1        while(1)
+ 130   1        {
+ 131   2          Temperature_Read();
+ 132   2          sprintf(Seg_Num, "u3    %02.0f", (Temperature_Val / 16.0) + Temperature_Up);
+ 133   2          
+ 134   2          Mode_3_Key_Val = Key_Read_KBD();
+ 135   2          if(Mode_3_Key_Val == 16 && Mode_3_Key_Val_Last == 0)
+ 136   2            Temperature_Up += 1.0;
+ 137   2          if(Mode_3_Key_Val == 17 && Mode_3_Key_Val_Last == 0)
+ 138   2            Temperature_Up -= 1.0;
+ 139   2          
+ 140   2          if(Temperature_Up < 10.0)
+ 141   2            Temperature_Up = 99.0;
+ 142   2          if(Temperature_Up > 99.0)
+ 143   2            Temperature_Up = 10.0;
+ 144   2          
+ 145   2          if(Mode_3_Key_Val == 12 && Mode_3_Key_Val_Last == 0)
+ 146   2            break;
+ 147   2          Seg_Proc();
+ 148   2          
+ 149   2          if(Mode_3_Key_Val == 13 && Mode_3_Key_Val_Last == 0)
+ 150   2            Relay_Mode = (Relay_Mode + 1) % 2;
+ 151   2          
+ 152   2          Mode_3_Key_Val_Last = Mode_3_Key_Val;
+ 153   2          Is_Realy();
+ 154   2        } 
+ 155   1        
+ 156   1        Mode_Mark = (Mode_Mark + 1) % 3;
+ 157   1      }
+ 158          
+ 159          void Seg_Proc(void)
+ 160          {
+ 161   1        if(Seg_Dly < 200)
+ 162   1          return;
+ 163   1        
+ 164   1        Seg_Dly = 0;
+ 165   1        
+ 166   1        Seg_Tran(Seg_Num, Seg_Val);
+ 167   1      }
+ 168          
+ 169          
+ 170          void Temperature_Read(void)
+ 171          {
+ 172   1        if(Temperature_Dly < 500)
+ 173   1          return;
+ 174   1        
+ 175   1        Temperature_Val = rd_temperature();
+ 176   1      }
+ 177          
+ 178          void RTC_Time_Read(void)
+C51 COMPILER V9.60.7.0   MAIN                                                              03/29/2024 13:52:05 PAGE 4   
+
+ 179          {
+ 180   1        if(RTC_Dly < 200)
+ 181   1          return;
+ 182   1        
+ 183   1        RTC_Dly = 0;
+ 184   1        
+ 185   1        Get_RTC(Time_Val);
+ 186   1      }
+ 187          
+ 188          void Is_Realy(void)
+ 189          {
+ 190   1        switch(Relay_Mode)
+ 191   1        {
+ 192   2          case 0:
+ 193   2            if(Relay_Mark != 0)
+ 194   2            {
+ 195   3              Set_Peripheral(0, 0);
+ 196   3              LED_Num = 0x02;
+ 197   3            }
+ 198   2            
+ 199   2            if((((Temperature_Val / 16.0) + Temperature_Up) < 10.0) || (((Temperature_Val / 16.0) + Temperature_Up)
+             - > 99.0))
+ 200   2            { 
+ 201   3              Set_Peripheral(0, 1);
+ 202   3              Relay_Is_Open = 1;
+ 203   3            }
+ 204   2            else
+ 205   2            { 
+ 206   3              Set_Peripheral(0, 0);
+ 207   3              Relay_Is_Open = 0;
+ 208   3            }
+ 209   2            
+ 210   2            if(Time_Val[1] == 59 && Time_Val[2] == 59)
+ 211   2            { 
+ 212   3              Relay_Mode_1_Mark = 1;
+ 213   3              Relay_Dly = 0;
+ 214   3            }
+ 215   2            
+ 216   2            if(Relay_Dly == 800)
+ 217   2              LED_Num = 0x03;
+ 218   2                    
+ 219   2            if(Relay_Dly == 5800)
+ 220   2            { 
+ 221   3              Relay_Mode_1_Mark = 0;
+ 222   3              Relay_Dly = 0;
+ 223   3              LED_Num = 0x02;
+ 224   3            }
+ 225   2            
+ 226   2            Relay_Mark = 0;
+ 227   2            
+ 228   2            break;
+ 229   2            
+ 230   2            
+ 231   2          case 1:
+ 232   2            if(Relay_Mark != 1)
+ 233   2            {
+ 234   3              Set_Peripheral(0, 0);
+ 235   3              LED_Num = 0x00;
+ 236   3            }
+ 237   2          
+ 238   2            if(Time_Val[1] == 59 && Time_Val[2] == 59)
+ 239   2            {
+C51 COMPILER V9.60.7.0   MAIN                                                              03/29/2024 13:52:05 PAGE 5   
+
+ 240   3              Relay_Mode_1_Mark = 1;
+ 241   3              Relay_Dly = 0;
+ 242   3            }
+ 243   2            
+ 244   2            if(Relay_Dly == 800)
+ 245   2            {
+ 246   3              LED_Num = 0x01;
+ 247   3              Set_Peripheral(0, 1);
+ 248   3              Relay_Is_Open = 1;
+ 249   3            }
+ 250   2                    
+ 251   2            if(Relay_Dly == 5800)
+ 252   2            {
+ 253   3              Set_Peripheral(0, 0);
+ 254   3              Relay_Is_Open = 0;
+ 255   3              LED_Display(0x00);
+ 256   3              Relay_Mode_1_Mark = 0;
+ 257   3              Relay_Dly = 0;
+ 258   3              LED_Num = 0x00;
+ 259   3            }
+ 260   2            
+ 261   2            Relay_Mark = 1;
+ 262   2            break;
+ 263   2        }
+ 264   1        
+ 265   1        if(Relay_Is_Open)
+ 266   1        {
+ 267   2          if(LED_Dly % 100 == 0)
+ 268   2                LED_Num ^= 0x04;
+ 269   2        }
+ 270   1        LED_Display(LED_Num);
+ 271   1      }
+ 272          
+ 273          void Timer1(void) interrupt 3
+ 274          {
+ 275   1        Seg_Dly++;
+ 276   1        Temperature_Dly++;
+ 277   1        RTC_Dly++;
+ 278   1        LED_Dly++;
+ 279   1        if(Relay_Mode_1_Mark == 1)
+ 280   1          Relay_Dly++;
+ 281   1        
+ 282   1        if(Seg_Dly % 2 == 0)
+ 283   1        {
+ 284   2          Seg_Display(Seg_Val, Seg_Pos);
+ 285   2          Seg_Pos = (Seg_Pos + 1) % 8;
+ 286   2        }
+ 287   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1052    ----
+   CONSTANT SIZE    =     38    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     54       4
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

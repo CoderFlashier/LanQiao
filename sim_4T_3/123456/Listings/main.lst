@@ -1,0 +1,329 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              04/01/2024 19:30:55 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: F:\keil5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\Driver) DEBUG OBJECTEXTEND PRINT
+                    -(.\Listings\main.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include "init.h"
+   2          #include "seg.h"
+   3          #include "ultrasonic.h"
+   4          #include "timer.h"
+   5          #include "key.h"
+   6          #include "led.h"
+   7          #include "stdio.h"
+   8          #include "iic.h"
+   9          
+  10          //Seg
+  11          unsigned char Seg_Num[10] = {0};
+  12          unsigned char Seg_Code[10] = {0};
+  13          //unsigned char Seg_Proc = 0;
+  14          unsigned char Seg_Dly = 0;
+  15          unsigned char Seg_Site = 0;
+  16          void Seg_Proc(void);
+  17          
+  18          //Ultrasonic
+  19          unsigned char Far_Val = 0;
+  20          unsigned char Far_Val_Last = 0;
+  21          unsigned int Ultrasonic_Dly = 0;
+  22          unsigned char Ultrasonic_Max = 60;
+  23          unsigned char Ultrasonic_Min = 10;
+  24          unsigned char Ultrasonic_Mode = 0;
+  25          unsigned char Alarm = 0;
+  26          unsigned char Ultrasonic_Set_Mode = 3;
+  27          unsigned char Ultrasonic_Out = 0;
+  28          unsigned char Ultrasonic_Out_Mark = 0;
+  29          void Is_Out(void);
+  30          
+  31          //Mode
+  32          unsigned char Mode_Mark = 0;
+  33          unsigned char Mode_Mark_Last = 3;
+  34          void Mode_0(void);
+  35          void Mode_1(void);
+  36          void Mode_2(void);
+  37          
+  38          //Key
+  39          unsigned char Key_Val = 0;
+  40          unsigned char Key_Val_Last = 20;
+  41          
+  42          //PCF8591
+  43          float V_Val = 0;
+  44          
+  45          //LED
+  46          unsigned char LED_Val = 0;
+  47          unsigned int LED_Dly = 0;
+  48          
+  49          void main()
+  50          {
+  51   1        init();
+  52   1        Timer0_Init();
+  53   1        Timer1_Init();
+  54   1        EA = 1;
+C51 COMPILER V9.60.7.0   MAIN                                                              04/01/2024 19:30:55 PAGE 2   
+
+  55   1        
+  56   1        while(1)
+  57   1        {
+  58   2          Key_Val = Key_Read_KBD();
+  59   2          if(Key_Val == 4 && Key_Val_Last == 0)
+  60   2            Mode_Mark = (Mode_Mark + 1) % 3;
+  61   2          switch(Mode_Mark)
+  62   2          {
+  63   3            case 0:
+  64   3              Mode_0();
+  65   3              break;
+  66   3            case 1:
+  67   3              Mode_1();
+  68   3              break;
+  69   3            case 2:
+  70   3              Mode_2();
+  71   3              break;
+  72   3          }
+  73   2          Key_Val_Last = Key_Val;
+  74   2          Seg_Proc();
+  75   2        }
+  76   1      }
+  77          
+  78          
+  79          void Mode_0(void)
+  80          {
+  81   1        if(Mode_Mark == 0 &&  Mode_Mark_Last != 0)
+  82   1        {
+  83   2          LED_Val &= 0xf8;
+  84   2          LED_Val |= 0x01;
+  85   2        }
+  86   1        
+  87   1        Mode_Mark_Last = Mode_Mark;
+  88   1        if(Ultrasonic_Dly < 400)
+  89   1          return;
+  90   1        
+  91   1        Ultrasonic_Dly = 0;
+  92   1        
+  93   1        Far_Val = Wave_Recv();
+  94   1        
+  95   1        Is_Out();
+  96   1        
+  97   1        sprintf(Seg_Num, "A    %3u", (unsigned int)Far_Val);
+  98   1        //LED_Display(LED_Val);
+  99   1      }
+ 100          
+ 101          
+ 102          void Mode_1(void)
+ 103          {
+ 104   1        unsigned char Mode_1_Key_Val = 0;
+ 105   1        unsigned char Mode_1_Key_Val_Last = 20;
+ 106   1        
+ 107   1        if(Mode_Mark == 1 &&  Mode_Mark_Last != 1)
+ 108   1        {
+ 109   2          LED_Val &= 0xf8;
+ 110   2          //1111 1000
+ 111   2          LED_Val |= 0x02;
+ 112   2        }
+ 113   1        
+ 114   1        //sprintf(Seg_Num, "P%u %u-%u", (unsigned int)(Ultrasonic_Mode + 1), (unsigned int)Ultrasonic_Min, (unsig
+             -ned int)Ultrasonic_Max);
+ 115   1        while(1)
+C51 COMPILER V9.60.7.0   MAIN                                                              04/01/2024 19:30:55 PAGE 3   
+
+ 116   1        {
+ 117   2          if(Ultrasonic_Dly > 400)
+ 118   2          {
+ 119   3            Ultrasonic_Dly = 0;
+ 120   3            Far_Val = Wave_Recv();
+ 121   3            Is_Out();
+ 122   3          }
+ 123   2        
+ 124   2          Mode_1_Key_Val = Key_Read_KBD();
+ 125   2          if(Mode_1_Key_Val == 5 && Mode_1_Key_Val_Last == 0)
+ 126   2            Ultrasonic_Mode = (Ultrasonic_Mode + 1) % 2;
+ 127   2          
+ 128   2          if(Ultrasonic_Mode == 0)
+ 129   2          {
+ 130   3            if(Mode_1_Key_Val == 9 && Mode_1_Key_Val_Last == 0)
+ 131   3            {
+ 132   4              Ultrasonic_Max += 10;
+ 133   4              if(Ultrasonic_Max > 90)
+ 134   4                Ultrasonic_Max = 50;
+ 135   4            }
+ 136   3            
+ 137   3            if(Mode_1_Key_Val == 8 && Mode_1_Key_Val_Last == 0)
+ 138   3            {
+ 139   4              Ultrasonic_Min += 10;
+ 140   4              if(Ultrasonic_Min > 40)
+ 141   4                Ultrasonic_Min = 0;
+ 142   4            }
+ 143   3              
+ 144   3          }
+ 145   2          
+ 146   2          if(Ultrasonic_Mode == 1)
+ 147   2          {
+ 148   3            V_Val = (PCF8591_ADC() / 256.0) * 5.0;
+ 149   3            if(Mode_1_Key_Val == 9 && Mode_1_Key_Val_Last == 0)
+ 150   3              Ultrasonic_Set_Mode = 0;
+ 151   3            if(Mode_1_Key_Val == 8 && Mode_1_Key_Val_Last == 0)
+ 152   3              Ultrasonic_Set_Mode = 1;
+ 153   3            
+ 154   3            switch(Ultrasonic_Set_Mode)
+ 155   3            {
+ 156   4              case 0:
+ 157   4                if(V_Val <= 1)
+ 158   4                  Ultrasonic_Max = 50;
+ 159   4                else if(V_Val > 1 && V_Val <= 2)
+ 160   4                  Ultrasonic_Max = 60;
+ 161   4                else if(V_Val > 2 && V_Val <= 3)
+ 162   4                  Ultrasonic_Max = 70;
+ 163   4                else if(V_Val > 3 && V_Val <= 4)
+ 164   4                  Ultrasonic_Max = 80;
+ 165   4                else
+ 166   4                  Ultrasonic_Max = 90;
+ 167   4                break;
+ 168   4                
+ 169   4              case 1:
+ 170   4                if(V_Val <= 1)
+ 171   4                  Ultrasonic_Min = 0;
+ 172   4                else if(V_Val > 1 && V_Val <= 2)
+ 173   4                  Ultrasonic_Min = 10;
+ 174   4                else if(V_Val > 2 && V_Val <= 3)
+ 175   4                  Ultrasonic_Min = 20;
+ 176   4                else if(V_Val > 3 && V_Val <= 4)
+ 177   4                  Ultrasonic_Min = 30;
+C51 COMPILER V9.60.7.0   MAIN                                                              04/01/2024 19:30:55 PAGE 4   
+
+ 178   4                else
+ 179   4                  Ultrasonic_Min = 40;
+ 180   4                break;
+ 181   4            }
+ 182   3          }
+ 183   2          sprintf(Seg_Num, "P%u %02u-%02u", (unsigned int)(Ultrasonic_Mode + 1), (unsigned int)Ultrasonic_Min, (un
+             -signed int)Ultrasonic_Max);
+ 184   2          //sprintf(Seg_Num, "P%u %f", (unsigned int)(Ultrasonic_Mode + 1), V_Val);
+ 185   2          Seg_Proc();
+ 186   2          
+ 187   2          Mode_Mark_Last = Mode_Mark;
+ 188   2          
+ 189   2          if(Mode_1_Key_Val == 4 && Mode_1_Key_Val_Last == 0)
+ 190   2          {
+ 191   3            Mode_Mark = (Mode_Mark + 1) % 3;
+ 192   3            break;
+ 193   3          }
+ 194   2          Mode_1_Key_Val_Last = Mode_1_Key_Val;
+ 195   2          //LED_Display(LED_Val);
+ 196   2        }
+ 197   1      }
+ 198          
+ 199          
+ 200          void Mode_2(void)
+ 201          {
+ 202   1        unsigned char Mode_2_Key_Val = 0;
+ 203   1        unsigned char Mode_2_Key_Val_Last = 20;
+ 204   1        
+ 205   1        if(Mode_Mark == 2 &&  Mode_Mark_Last != 2)
+ 206   1        {
+ 207   2          LED_Val &= 0xf8;
+ 208   2          LED_Val |= 0x04;
+ 209   2        }
+ 210   1        
+ 211   1        while(1)
+ 212   1        {
+ 213   2          Mode_2_Key_Val = Key_Read_KBD();
+ 214   2          
+ 215   2          if(Ultrasonic_Dly > 400)
+ 216   2          {
+ 217   3            Ultrasonic_Dly = 0;
+ 218   3            Far_Val = Wave_Recv();
+ 219   3            Is_Out();
+ 220   3          }
+ 221   2          
+ 222   2          if(Ultrasonic_Out < 10)
+ 223   2            sprintf(Seg_Num, "E      %u", (unsigned int)Ultrasonic_Out);
+ 224   2          else
+ 225   2            sprintf(Seg_Num, "E      -");
+ 226   2          
+ 227   2          Mode_Mark_Last = Mode_Mark;
+ 228   2          //LED_Display(LED_Val);
+ 229   2          
+ 230   2          if(Mode_2_Key_Val == 5 && Mode_2_Key_Val_Last == 0)
+ 231   2          {
+ 232   3            Ultrasonic_Out = 0;
+ 233   3          }
+ 234   2          
+ 235   2          if(Mode_2_Key_Val == 4 && Mode_2_Key_Val_Last == 0)
+ 236   2          {
+ 237   3            Mode_Mark = (Mode_Mark + 1) % 3;
+ 238   3            break;
+C51 COMPILER V9.60.7.0   MAIN                                                              04/01/2024 19:30:55 PAGE 5   
+
+ 239   3          }
+ 240   2          
+ 241   2          Mode_2_Key_Val_Last = Mode_2_Key_Val;
+ 242   2          Seg_Proc();
+ 243   2        }
+ 244   1      }
+ 245          
+ 246          
+ 247          void Seg_Proc(void)
+ 248          {
+ 249   1        if(Seg_Dly < 200)
+ 250   1          return;
+ 251   1        
+ 252   1        Seg_Dly = 0;
+ 253   1        
+ 254   1        Seg_Tran(Seg_Num, Seg_Code);
+ 255   1      }
+ 256          
+ 257          void Is_Out(void)
+ 258          {
+ 259   1        if((Far_Val > Ultrasonic_Max && Far_Val_Last < Ultrasonic_Max) || (Far_Val < Ultrasonic_Min && Far_Val_La
+             -st > Ultrasonic_Min))
+ 260   1          Ultrasonic_Out++;
+ 261   1        
+ 262   1        if(Far_Val > Ultrasonic_Max || Far_Val < Ultrasonic_Min)
+ 263   1          Ultrasonic_Out_Mark = 1;
+ 264   1        else
+ 265   1        {
+ 266   2          LED_Val |= 0x80;
+ 267   2          Ultrasonic_Out_Mark = 0;
+ 268   2        }
+ 269   1        
+ 270   1        Far_Val_Last = Far_Val;
+ 271   1      }
+ 272          
+ 273          void Timer_1(void) interrupt 3
+ 274          {
+ 275   1        Seg_Dly++;
+ 276   1        Ultrasonic_Dly++;
+ 277   1        
+ 278   1        if(Seg_Dly % 2 == 0)
+ 279   1        {
+ 280   2          Seg_Site = (Seg_Site + 1) % 8;
+ 281   2          Seg_Display(Seg_Code, Seg_Site);
+ 282   2        }
+ 283   1        
+ 284   1        if(Ultrasonic_Out_Mark == 1)
+ 285   1          if(LED_Dly % 1000 == 0)
+ 286   1          {
+ 287   2            LED_Dly = 0;
+ 288   2            LED_Val ^= 0x80;
+ 289   2          }
+ 290   1          
+ 291   1        LED_Display(LED_Val);
+ 292   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1127    ----
+   CONSTANT SIZE    =     42    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+C51 COMPILER V9.60.7.0   MAIN                                                              04/01/2024 19:30:55 PAGE 6   
+
+   DATA SIZE        =     44       4
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

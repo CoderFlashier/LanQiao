@@ -1,0 +1,112 @@
+C51 COMPILER V9.60.7.0   SONIC                                                             03/06/2024 17:03:12 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE SONIC
+OBJECT MODULE PLACED IN .\Objects\sonic.obj
+COMPILER INVOKED BY: D:\Keil\C51\BIN\C51.EXE User\sonic.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\s
+                    -onic.lst) OBJECT(.\Objects\sonic.obj)
+
+line level    source
+
+   1          #include "sonic.h"
+   2          
+   3          //
+   4          void InitSonicTimer(void)       
+   5          {
+   6   1              AUXR &= 0xBF;
+   7   1              TMOD &= 0x0F;
+   8   1              TL1 = 0x00;
+   9   1              TH1 = 0x00;
+  10   1              TF1 = 0;
+  11   1              TR1 = 0;        //定时器暂停
+  12   1      }
+  13          
+  14          //
+  15          void DelaySonic(void)           //@12MHz
+  16          {
+  17   1              unsigned char i;
+  18   1      
+  19   1              _nop_();
+  20   1              _nop_();
+  21   1              i = 36;
+  22   1              while (--i);
+  23   1      }
+  24          
+  25          //
+  26          void SendDriverSignal(void)
+  27          {
+  28   1              EA = 0; //
+  29   1              
+  30   1              SONIC_TX = 1;
+  31   1              DelaySonic();
+  32   1              SONIC_TX = 0;
+  33   1              DelaySonic();
+  34   1              SONIC_TX = 1;
+  35   1              DelaySonic();
+  36   1              SONIC_TX = 0;
+  37   1              DelaySonic();
+  38   1              SONIC_TX = 1;
+  39   1              DelaySonic();
+  40   1              SONIC_TX = 0;
+  41   1              DelaySonic();
+  42   1              SONIC_TX = 1;
+  43   1              DelaySonic();
+  44   1              SONIC_TX = 0;
+  45   1              DelaySonic();
+  46   1              SONIC_TX = 1;
+  47   1              DelaySonic();   
+  48   1              SONIC_TX = 0;
+  49   1              DelaySonic();
+  50   1              SONIC_TX = 1;
+  51   1              DelaySonic();
+  52   1              SONIC_TX = 0;
+  53   1              DelaySonic();
+  54   1              SONIC_TX = 1;
+C51 COMPILER V9.60.7.0   SONIC                                                             03/06/2024 17:03:12 PAGE 2   
+
+  55   1              DelaySonic();
+  56   1              SONIC_TX = 0;
+  57   1              DelaySonic();
+  58   1      
+  59   1              EA = 1;
+  60   1      }
+  61          
+  62          //
+  63          unsigned int CalDistance(void)
+  64          {
+  65   1      
+  66   1              unsigned int t = 0;
+  67   1              
+  68   1              SendDriverSignal();
+  69   1              TR1 = 1;
+  70   1              while((SONIC_RX == 1) && (TF1 == 0));
+  71   1              TR1 = 0;
+  72   1      
+  73   1              //测距超时
+  74   1              if(TF1 == 1){
+  75   2                      TF1 = 0;
+  76   2                      TH1 = 0;
+  77   2                      TL1 = 0;
+  78   2                      return 255;
+  79   2              }else{
+  80   2                      t = ((TH1 << 8) | TL1);
+  81   2                      TF1 = 0;
+  82   2                      TH1 = 0;
+  83   2                      TL1 = 0;
+  84   2                      return (unsigned char )(t * 0.017);
+  85   2              }
+  86   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    131    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

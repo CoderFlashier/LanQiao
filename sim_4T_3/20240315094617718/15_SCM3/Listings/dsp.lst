@@ -1,0 +1,72 @@
+C51 COMPILER V9.60.7.0   DSP                                                               03/06/2024 16:37:09 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE DSP
+OBJECT MODULE PLACED IN .\Objects\dsp.obj
+COMPILER INVOKED BY: D:\Keil\C51\BIN\C51.EXE User\dsp.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\dsp
+                    -.lst) OBJECT(.\Objects\dsp.obj)
+
+line level    source
+
+   1          #include "dsp.h"
+   2          
+   3          DisplayStruct dsp;
+   4          
+   5                                                                          /* 0,1,2,3,4,5,6,7,8,9,熄灭,-,C,H,F,P,E,A */                                                    
+             -                          
+   6          code unsigned char segCode[] = {0xc0,0xf9,0xa4,0xb0,0x99,0x92,0x82,0xf8,0x80,0x90,0xff,0xbf,0xc6,0x89,0x8e
+             -,0x8c,0x86,0x88};
+   7          
+   8          //
+   9          DisplayStruct* GetDisplayStruct(void)
+  10          {
+  11   1          return &dsp;
+  12   1      }
+  13          
+  14          //
+  15          void SegDisplay(void)
+  16          {
+  17   1          SEG(0xFF);
+  18   1          COM(1 << dsp.com);
+  19   1      
+  20   1          if(dsp.com != dsp.dot){
+  21   2              SEG(segCode[dsp.buf[dsp.com]]);
+  22   2          }else{
+  23   2              SEG(segCode[dsp.buf[dsp.com]] & 0x7F);
+  24   2          }
+  25   1      
+  26   1          if(++dsp.com >= 8){
+  27   2              dsp.com = 0;
+  28   2          }
+  29   1      }
+  30          
+  31          //
+  32          void InitDsp(void)
+  33          {
+  34   1          dsp.buf[0] = 10;
+  35   1          dsp.buf[1] = 10;
+  36   1          dsp.buf[2] = 10;
+  37   1          dsp.buf[3] = 10;
+  38   1          dsp.buf[4] = 10;
+  39   1          dsp.buf[5] = 10;
+  40   1          dsp.buf[6] = 10;
+  41   1          dsp.buf[7] = 10;
+  42   1          dsp.dot = 255;
+  43   1              dsp.SegDisplay = SegDisplay;
+  44   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    137    ----
+   CONSTANT SIZE    =     18    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     12    ----
+C51 COMPILER V9.60.7.0   DSP                                                               03/06/2024 16:37:09 PAGE 2   
+
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

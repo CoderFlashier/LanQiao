@@ -15,6 +15,6 @@ void Set_Peripheral(unsigned char Buzzer_Status, unsigned char Realy_Status)
 		Peripheral_Val |= 0x10; // 0001 0000
 	}
 	P0 = Peripheral_Val;
-	P2 = P2 & 0x1f | 0xa0;
-	P2 = P2 & 0x1f;
+	P2 = P2 & 0x1f | 0xa0;// 0001 1111 | 1010 0000
+	P2 = P2 & 0x1f; // 1011 1111 & 0001 1111
 }

@@ -1,0 +1,9 @@
+".\Objects\dsp.obj",
+".\Objects\iic.obj",
+".\Objects\keyboard.obj",
+".\Objects\main.obj",
+".\Objects\pcf8591.obj",
+".\Objects\sonic.obj",
+".\Objects\task.obj" 
+TO ".\Objects\Template" 
+PRINT(".\Listings\Template.m51") RAMSIZE(256) 

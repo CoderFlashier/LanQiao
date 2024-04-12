@@ -1,0 +1,296 @@
+C51 COMPILER V9.60.7.0   TASK                                                              03/07/2024 20:43:59 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE TASK
+OBJECT MODULE PLACED IN .\Objects\task.obj
+COMPILER INVOKED BY: D:\Keil\C51\BIN\C51.EXE User\task.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\ta
+                    -sk.lst) OBJECT(.\Objects\task.obj)
+
+line level    source
+
+   1          #include "task.h"
+   2          
+   3          unsigned char cntr_key = 0;
+   4          unsigned char cntr_dsp = 0;
+   5          unsigned char cntr_led = 0;
+   6          unsigned char cntr_adc = 0;
+   7          unsigned char cntr_dis = 0;
+   8          
+   9          unsigned char ui = 0;
+  10          unsigned int adc = 0;
+  11          unsigned int distance = 0;
+  12          unsigned int temp_distance = 0;
+  13          unsigned char up_para = 60;
+  14          unsigned char down_para = 10;
+  15          unsigned char warn_count = 0;
+  16          unsigned char rot = 0;
+  17          
+  18          bit mode = 0;
+  19          
+  20          //1ms中断一次@12MHz
+  21          void initSysTick(void)
+  22          {
+  23   1          AUXR |= 0x04;
+  24   1          T2L = 0x20;
+  25   1              T2H = 0xD1;
+  26   1              AUXR |= 0x10;
+  27   1          IE2 |= 0x04;
+  28   1              EA = 1;
+  29   1      }
+  30          
+  31          //初始化板级外设
+  32          void initBsp(void)
+  33          {
+  34   1              BUZ(0x00);
+  35   1              LED(0xFF);
+  36   1              InitDsp();      
+  37   1              InitKeyStruct();
+  38   1              InitPCF8591();
+  39   1              InitSonicTimer();
+  40   1      }
+  41          
+  42          //定时器中断服务函数
+  43          void isrSysTick(void)    interrupt 12
+  44          {
+  45   1              GetDisplayStruct()->SegDisplay();
+  46   1      
+  47   1              if(cntr_dis < 200){
+  48   2                      ++cntr_dis;
+  49   2              }
+  50   1              
+  51   1              if(cntr_adc < 150){
+  52   2                      ++cntr_adc;
+  53   2              }
+  54   1              
+C51 COMPILER V9.60.7.0   TASK                                                              03/07/2024 20:43:59 PAGE 2   
+
+  55   1              if(cntr_led < 100){
+  56   2                      ++cntr_led;
+  57   2              }
+  58   1              
+  59   1              if(cntr_dsp < 50){
+  60   2                      ++cntr_dsp;
+  61   2              }
+  62   1                      
+  63   1              if(cntr_key < 10){
+  64   2                      ++cntr_key;
+  65   2              }
+  66   1      
+  67   1      }
+  68          void taskCollect(void)
+  69          {
+  70   1              if(cntr_dis == 200){
+  71   2                      cntr_dis = 0;
+  72   2                      temp_distance = distance;
+  73   2                      distance = CalDistance();
+  74   2      
+  75   2                      if((temp_distance >= down_para)&&(temp_distance <= up_para)){
+  76   3                              if((distance < down_para)||(distance > up_para)){
+  77   4                                      warn_count++;
+  78   4                              }
+  79   3              
+  80   3                      }
+  81   2              }
+  82   1      
+  83   1              if(cntr_adc == 150){
+  84   2                      cntr_adc = 0;
+  85   2                      adc = (unsigned int)(GetADC(3) * 500.0 / 255);
+  86   2              }
+  87   1      
+  88   1              if(cntr_key == 10){
+  89   2                      cntr_key = 0;
+  90   2                      GetKeyStruct()->pFun();
+  91   2              }
+  92   1      }
+  93          
+  94          //
+  95          void taskControl(void)
+  96          {
+  97   1              static unsigned char led = 0xff;
+  98   1              
+  99   1              //100ms 刷新
+ 100   1              if(cntr_led < 100)
+ 101   1                      return;
+ 102   1              cntr_led = 0;
+ 103   1              
+ 104   1              if(ui == 0){
+ 105   2                      led &= ~1;
+ 106   2                      led |= 2;
+ 107   2                      led |= 4;
+ 108   2              }else if(ui == 1){
+ 109   2                      led &= ~2;
+ 110   2                      led |= 1;
+ 111   2                      led |= 4;
+ 112   2              }else{
+ 113   2                      led &= ~4;
+ 114   2                      led |= 1;
+ 115   2                      led |= 2;
+ 116   2              }
+C51 COMPILER V9.60.7.0   TASK                                                              03/07/2024 20:43:59 PAGE 3   
+
+ 117   1              //L8
+ 118   1              if((distance >= down_para)&&(distance <= up_para)){
+ 119   2                      led &= ~0x80;
+ 120   2              }else{
+ 121   2                      led ^= 0x80;
+ 122   2              }
+ 123   1              
+ 124   1              LED(led);
+ 125   1      }
+ 126          
+ 127          void taskrot(void)
+ 128          {
+ 129   1              if(rot == 1){
+ 130   2                      if((adc >= 0)&&(adc < 100)){
+ 131   3                              down_para = 0;
+ 132   3                      }else if((adc >= 100)&&(adc < 200)){
+ 133   3                              down_para = 10;
+ 134   3                      }else if((adc >= 200)&&(adc < 300)){
+ 135   3                              down_para = 20;
+ 136   3                      }else if((adc >= 300)&&(adc < 400)){
+ 137   3                              down_para = 30;
+ 138   3                      }else if((adc >= 400)&&(adc < 500)){
+ 139   3                              down_para = 40;
+ 140   3                      }
+ 141   2              }else if(rot == 2){
+ 142   2                      if((adc >= 0)&&(adc < 100)){
+ 143   3                              up_para = 50;
+ 144   3                      }else if((adc >= 100)&&(adc < 200)){
+ 145   3                              up_para = 60;
+ 146   3                      }else if((adc >= 200)&&(adc < 300)){
+ 147   3                              up_para = 70;
+ 148   3                      }else if((adc >= 300)&&(adc < 400)){
+ 149   3                              up_para = 80;
+ 150   3                      }else if((adc >= 400)&&(adc < 500)){
+ 151   3                              up_para = 90;
+ 152   3                      }
+ 153   2              }
+ 154   1      }
+ 155          
+ 156          //
+ 157          void taskKey(void)
+ 158          {       
+ 159   1              //按键部分处理
+ 160   1              switch(GetKeyStruct()->value){
+ 161   2                      /* S4 */
+ 162   2                      case 12:
+ 163   2                              /* 切换界面 */
+ 164   2                              if(++ui > 2){
+ 165   3                                      ui = 0;
+ 166   3                              }
+ 167   2                              GetKeyStruct()->value = 255;
+ 168   2                              break;
+ 169   2                      /* S5 */
+ 170   2                      case 8:
+ 171   2                              if(ui == 1){
+ 172   3                                      mode = ~mode;
+ 173   3                              }else if(ui == 2){
+ 174   3                                      warn_count = 0;
+ 175   3                              }
+ 176   2      
+ 177   2                              if(mode == 0){
+ 178   3                                      rot = 0;
+C51 COMPILER V9.60.7.0   TASK                                                              03/07/2024 20:43:59 PAGE 4   
+
+ 179   3                              }
+ 180   2                              GetKeyStruct()->value = 255;
+ 181   2                              break;
+ 182   2                      /* S8 */
+ 183   2                      case 13:
+ 184   2                              if(ui == 1){
+ 185   3                                      if(mode == 0){
+ 186   4                                              down_para += 10;
+ 187   4                                              if(down_para > 40){
+ 188   5                                                      down_para = 0;
+ 189   5                                              }
+ 190   4                                              
+ 191   4                                      }else{
+ 192   4                                              rot = 1;        //旋钮模式，调整参数下限
+ 193   4                                      }
+ 194   3                              }
+ 195   2                              GetKeyStruct()->value = 255;
+ 196   2                              break;
+ 197   2                      /* S9 */
+ 198   2                      case 9:
+ 199   2                              if(ui == 1){
+ 200   3                                      if(mode == 0){
+ 201   4                                              up_para += 10;
+ 202   4                                              if(up_para > 90){
+ 203   5                                                      up_para = 50;
+ 204   5                                              }
+ 205   4                                      }else{
+ 206   4                                              rot = 2;        //旋钮模式，调整参数上限
+ 207   4                                      }
+ 208   3                              }
+ 209   2                              GetKeyStruct()->value = 255;
+ 210   2                              break;
+ 211   2              }
+ 212   1      }
+ 213          
+ 214          //显示处理
+ 215          void taskDisplay(void)
+ 216          {
+ 217   1              DisplayStruct* seg = GetDisplayStruct();
+ 218   1              
+ 219   1              //显示部分处理
+ 220   1              if(cntr_dsp < 50){
+ 221   2                      return;
+ 222   2              }       
+ 223   1              cntr_dsp = 0;
+ 224   1              
+ 225   1              if(ui == 0){
+ 226   2                      seg->dot = 255;
+ 227   2                      seg->buf[0] = 17;
+ 228   2                      seg->buf[1] = 10;
+ 229   2                      seg->buf[2] = 10;
+ 230   2                      seg->buf[3] = 10;
+ 231   2                      seg->buf[4] = 10;
+ 232   2                      seg->buf[5] = (distance > 99)?(distance/100):(10);;
+ 233   2                      seg->buf[6] = (distance > 9)?(distance%100/10):(10);
+ 234   2                      seg->buf[7] = distance%10;
+ 235   2              }else if(ui == 1){
+ 236   2                      seg->dot = 255;
+ 237   2                      seg->buf[0] = 15;
+ 238   2                      if(mode == 0){
+ 239   3                              seg->buf[1] = 1;
+ 240   3                      }else{
+C51 COMPILER V9.60.7.0   TASK                                                              03/07/2024 20:43:59 PAGE 5   
+
+ 241   3                              seg->buf[1] = 2;
+ 242   3                      }
+ 243   2                      seg->buf[2] = 10;
+ 244   2                      seg->buf[3] = down_para/10;
+ 245   2                      seg->buf[4] = down_para%10;
+ 246   2                      seg->buf[5] = 11;
+ 247   2                      seg->buf[6] = up_para/10;
+ 248   2                      seg->buf[7] = up_para%10;
+ 249   2              }else{
+ 250   2                      seg->dot = 255;
+ 251   2                      seg->buf[0] = 16;
+ 252   2                      seg->buf[1] = 10;
+ 253   2                      seg->buf[2] = 10;
+ 254   2                      seg->buf[3] = 10;
+ 255   2                      seg->buf[4] = 10;
+ 256   2                      seg->buf[5] = 10;
+ 257   2                      seg->buf[6] = 10;
+ 258   2                      if(warn_count > 9){
+ 259   3                              seg->buf[7] = 11;
+ 260   3                      }else{
+ 261   3                              seg->buf[7] = warn_count;
+ 262   3                      }       
+ 263   2              }       
+ 264   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1209    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     17       3
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      1    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

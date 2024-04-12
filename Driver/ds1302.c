@@ -70,7 +70,7 @@ void Set_RTC(unsigned char *pucRTC)
 	temp = ((pucRTC[2] / 10) << 4) | (pucRTC[2] % 10);
 	Write_Ds1302_Byte(0x80, temp);
 	
-	Write_Ds1302_Byte(0x8e, 0x00);
+	Write_Ds1302_Byte(0x8e, 0x80);
 }
 
 

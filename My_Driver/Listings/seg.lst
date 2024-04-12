@@ -1,0 +1,126 @@
+C51 COMPILER V9.60.7.0   SEG                                                               04/11/2024 19:53:45 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE SEG
+OBJECT MODULE PLACED IN .\Objects\seg.obj
+COMPILER INVOKED BY: F:\keil5\C51\BIN\C51.EXE seg.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\seg.lst
+                    -) TABS(2) OBJECT(.\Objects\seg.obj)
+
+line level    source
+
+   1          #include "seg.h"
+   2          
+   3          
+   4          void Seg_Tran(unsigned char Seg_Val[], unsigned char Seg_Code[])
+   5          {
+   6   1        unsigned char i = 0;
+   7   1        unsigned char j = 0;
+   8   1        for(i = 0, j = 0; i <= 7; i++, j++)
+   9   1        {
+  10   2          switch(Seg_Val[j])
+  11   2          {
+  12   3            case '0':
+  13   3              Seg_Code[i] = 0xc0;
+  14   3              break;
+  15   3            case '1':
+  16   3              Seg_Code[i] = 0xf9;
+  17   3              break;
+  18   3            case '2':
+  19   3              Seg_Code[i] = 0xa4;
+  20   3              break;
+  21   3            case '3':
+  22   3              Seg_Code[i] = 0xb0;
+  23   3              break;
+  24   3            case '4':
+  25   3              Seg_Code[i] = 0x99;
+  26   3              break;
+  27   3            case '5':
+  28   3              Seg_Code[i] = 0x92;
+  29   3              break;
+  30   3            case '6':
+  31   3              Seg_Code[i] = 0x82;
+  32   3              break;
+  33   3            case '7':
+  34   3              Seg_Code[i] = 0xf8;
+  35   3              break;
+  36   3            case '8':
+  37   3              Seg_Code[i] = 0x80;
+  38   3              break;
+  39   3            case '9':
+  40   3              Seg_Code[i] = 0x90;
+  41   3              break;
+  42   3            case 'A':
+  43   3              Seg_Code[i] = 0x88;
+  44   3              break;
+  45   3            case 'b':
+  46   3              Seg_Code[i] = 0x83;
+  47   3              break;
+  48   3            case 'C':
+  49   3              Seg_Code[i] = 0xc6;
+  50   3              break;
+  51   3            case 'd':
+  52   3              Seg_Code[i] = 0xa1;
+  53   3              break;
+  54   3            case 'E':
+C51 COMPILER V9.60.7.0   SEG                                                               04/11/2024 19:53:45 PAGE 2   
+
+  55   3              Seg_Code[i] = 0x86;
+  56   3              break;
+  57   3            case 'F':
+  58   3              Seg_Code[i] = 0x8e;
+  59   3              break;
+  60   3            case ' ':
+  61   3              Seg_Code[i] = 0xff;
+  62   3              break;
+  63   3            case 0:
+  64   3              Seg_Code[i] = 0xff;
+  65   3              break;
+  66   3            
+  67   3          }
+  68   2          
+  69   2          if(Seg_Val[i + 1] == '.')
+  70   2          {
+  71   3            Seg_Code[i] &= 0x7f;
+  72   3            j += 1;
+  73   3          }
+  74   2        }
+  75   1      }
+  76          
+  77          
+  78          
+  79          void Seg_Display(unsigned char Seg_Code[], unsigned char Seg_Place)
+  80          {
+  81   1        P0 = 0x00;
+  82   1        P2 = P2 & 0x1f | 0xe0;
+  83   1        P2 &= 0x1f;
+  84   1        
+  85   1        P0 = 1 << Seg_Place;
+  86   1        P2 = P2 & 0x1f | 0xc0;
+  87   1        P2 &= 0x1f;
+  88   1        
+  89   1        P0 = Seg_Code[Seg_Place];
+  90   1        P2 = P2 & 0x1f | 0xe0;
+  91   1        P2 &= 0x1f;
+  92   1        
+  93   1      //  P0 = Seg_Code[Seg_Place];
+  94   1      //  P2 = P2 & 0x1f | 0xe0; // 1110 0000
+  95   1      //  P2 = P2 & 0x1f;
+  96   1      //  
+  97   1      //  P0 = 1 << Seg_Place;
+  98   1      //  P2 = P2 & 0x1f | 0xc0;
+  99   1      //  P2 = P2 & 0x1f;
+ 100   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    492    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       8
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

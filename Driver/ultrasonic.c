@@ -4,7 +4,7 @@ unsigned char Wave_Recv(void)
 {
 	unsigned char ucNum = 10;
 	
-	Tx = 0;
+	Tx = 0;//发射端P10
 	TL0 = 0xF4;
 	TH0 = 0xFF;
 	TR0 = 1;
@@ -16,6 +16,7 @@ unsigned char Wave_Recv(void)
 		TF0 = 0;
 	}
 	
+	//作为正计时
 	TR0 = 0;
 	TL0 = 0;
 	TH0 = 0;

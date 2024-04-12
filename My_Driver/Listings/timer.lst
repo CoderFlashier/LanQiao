@@ -1,0 +1,59 @@
+C51 COMPILER V9.60.7.0   TIMER                                                             04/11/2024 19:53:46 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE TIMER
+OBJECT MODULE PLACED IN .\Objects\timer.obj
+COMPILER INVOKED BY: F:\keil5\C51\BIN\C51.EXE timer.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\timer
+                    -.lst) TABS(2) OBJECT(.\Objects\timer.obj)
+
+line level    source
+
+   1          #include "timer.h"
+   2          
+   3          
+   4          //void Timer0_Init(void)    //12微秒@12.000MHz
+   5          //{
+   6          //  AUXR &= 0x7F;     //定时器时钟12T模式
+   7          //  TMOD &= 0xF0;     //设置定时器模式
+   8          //  TL0 = 0xF4;       //设置定时初始值
+   9          //  TH0 = 0xFF;       //设置定时初始值
+  10          //  TF0 = 0;        //清除TF0标志
+  11          //  TR0 = 0;        //定时器0不开始计时
+  12          //}
+  13          
+  14          
+  15          void Timer1_Init(void)    //1毫秒@12.000MHz
+  16          {
+  17   1        AUXR |= 0x40;     //定时器时钟1T模式
+  18   1        TMOD &= 0x0F;     //设置定时器模式
+  19   1        TL1 = 0x20;       //设置定时初始值
+  20   1        TH1 = 0xD1;       //设置定时初始值
+  21   1        TF1 = 0;        //清除TF1标志
+  22   1        TR1 = 1;        //定时器1开始计时
+  23   1        ET1 = 1;
+  24   1      }
+  25          
+  26          
+  27          //NE555
+  28          void Timer0_Init(void)
+  29          {
+  30   1        TMOD &= 0xf0;
+  31   1        TMOD |= 0x05;
+  32   1        TL0 = 0;
+  33   1        TH0 = 0;
+  34   1        TR0 = 1;
+  35   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     33    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

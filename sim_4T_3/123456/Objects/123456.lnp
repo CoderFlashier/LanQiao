@@ -1,0 +1,10 @@
+".\Objects\iic.obj",
+".\Objects\init.obj",
+".\Objects\key.obj",
+".\Objects\led.obj",
+".\Objects\seg.obj",
+".\Objects\timer.obj",
+".\Objects\ultrasonic.obj",
+".\Objects\main.obj" 
+TO ".\Objects\123456" 
+PRINT(".\Listings\123456.m51") RAMSIZE(256) 

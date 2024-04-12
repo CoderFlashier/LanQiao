@@ -1,0 +1,11 @@
+".\Objects\main.obj",
+".\Objects\init.obj",
+".\Objects\key.obj",
+".\Objects\led.obj",
+".\Objects\onewire.obj",
+".\Objects\seg.obj",
+".\Objects\timer.obj",
+".\Objects\buzz_relay.obj",
+".\Objects\ds1302.obj" 
+TO ".\Objects\123456" 
+PRINT(".\Listings\123456.m51") RAMSIZE(256) 

@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   SEG                                                               03/17/2024 14:12:35 PAGE 1   
+C51 COMPILER V9.60.7.0   SEG                                                               03/24/2024 16:16:26 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE SEG
@@ -62,7 +62,7 @@ line level    source
   52   3              break;
   53   3            case 'E':
   54   3              pucSeg_Code[i] = 0x86;
-C51 COMPILER V9.60.7.0   SEG                                                               03/17/2024 14:12:35 PAGE 2   
+C51 COMPILER V9.60.7.0   SEG                                                               03/24/2024 16:16:26 PAGE 2   
 
   55   3              break;
   56   3            case 'F':
